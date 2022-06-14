@@ -20,7 +20,7 @@ class SubprocessCaller():
 
     def build_command(self):
         command_line_list = [self.software]
-        if self.subcommand is not '':
+        if self.subcommand != '':
             command_line_list += [self.subcommand]
         command_line_list += self.positionals
         for param, value in self.command_line_args.items():
