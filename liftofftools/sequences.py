@@ -3,6 +3,7 @@ from collections import defaultdict
 import numpy as np
 from liftofftools.annotation import merge_children_intervals
 
+
 class FeatureDict(defaultdict):
     def __init__(self, annotation, feature_type):
         super().__init__(list)
@@ -18,8 +19,6 @@ class FeatureDict(defaultdict):
                     self[parents[0].id].append(feature)
                 else:
                     self[feature.id].append(feature)
-
-
 
 
 class SequenceDict(dict):
@@ -44,6 +43,7 @@ class SequenceDict(dict):
                 sequence = get_dna_sequence(fasta, feature_group)
             self[parent] = sequence
 
+
     def get_longest_isoform_dict(self, gene_list):
         longest_isoform_dict = {}
         for gene in gene_list:
@@ -52,8 +52,6 @@ class SequenceDict(dict):
                 longest_isoform = get_longest_isoform(parent_to_child)
                 longest_isoform_dict[gene] = self[longest_isoform]
         return longest_isoform_dict
-
-
 
 
 def get_longest_isoform(child_dict):
@@ -65,7 +63,6 @@ def get_longest_isoform(child_dict):
             max_length = length
             longest_tran = parent
     return longest_tran
-
 
 
 def get_dna_sequence(fasta, features):
@@ -85,6 +82,3 @@ def get_dna_sequence(fasta, features):
 def get_protein_sequence(fasta, features):
     dna = get_dna_sequence(fasta, features)
     return str(Seq(dna).translate())
-
-
-

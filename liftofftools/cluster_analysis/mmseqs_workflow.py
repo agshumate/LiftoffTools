@@ -16,6 +16,7 @@ def get_mmseqs_path():
         return 'mmseqs'
     return ARGS.mmseqs_path
 
+
 def create_db(mmseqs_path, fasta_file_list, output_name):
     subcommand = 'createdb'
     positionals = fasta_file_list + [output_name + "_db"]
@@ -23,7 +24,6 @@ def create_db(mmseqs_path, fasta_file_list, output_name):
     if make_file(output_name + "_db"):
         SubprocessCaller(mmseqs_path, subcommand, positionals, command_line_args).run_command()
     return output_name + "_db"
-
 
 
 def cluster(mmseqs_path, db_name):
@@ -36,7 +36,6 @@ def cluster(mmseqs_path, db_name):
     return db_name+"_cluster"
 
 
-
 def create_tsv(mmseqs_path, db_name, cluster_name):
     subcommand = 'createtsv'
     positionals = [db_name, db_name, cluster_name, cluster_name + ".tsv"]
@@ -44,7 +43,6 @@ def create_tsv(mmseqs_path, db_name, cluster_name):
     if make_file(cluster_name + ".tsv"):
         SubprocessCaller(mmseqs_path, subcommand, positionals, command_line_args).run_command()
     return cluster_name + ".tsv"
-
 
 
 def parse_params():

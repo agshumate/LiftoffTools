@@ -1,8 +1,6 @@
 import argparse
 
 def parse_args():
-
-    #parent parser
     parser = argparse.ArgumentParser(description='Compare gene annotations across genome assemblies')
     parser.add_argument('subcommand', choices=['clusters', 'variants', 'synteny', 'all'])
     parser.add_argument('-r', help='reference fasta', required=True)
@@ -27,6 +25,7 @@ def parse_args():
     synteny_group = parser.add_argument_group("synteny arguments")
     synteny_group.add_argument('-edit-distance', help="calculate edit distance between reference gene order and "
                                                       "target gene order", required=False, action='store_true')
+    parser.add_argument('-V', '--version', help='show program version', action='version', version='v0.2.0   ')
     parser._positionals.title = 'Subcommands'
     return parser.parse_args()
 

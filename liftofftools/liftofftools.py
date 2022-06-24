@@ -32,7 +32,7 @@ def main():
     if ARGS.subcommand in ['all', 'clusters']:
         analyze_clusters.main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db)
     if ARGS.subcommand in ['all', 'variants']:
-        variants.analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db)
+        variants.analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db)
 
 
 
@@ -77,16 +77,6 @@ def check_ids(ref_db, target_db, feature_types):
                                                                          "reference " \
                                                                      "and target annotation"
         warnings.warn(mismatch_ids_warning)
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

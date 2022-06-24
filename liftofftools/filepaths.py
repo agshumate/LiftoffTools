@@ -34,6 +34,7 @@ def remove_directory(path):
 def make_file(file_name):
     return os.path.exists(file_name) is False or ARGS.force
 
+
 def remove_file(file_name):
     if os.path.exists(file_name):
         os.remove(file_name)

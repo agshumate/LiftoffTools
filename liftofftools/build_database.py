@@ -3,9 +3,6 @@ import sys
 from liftofftools.cli_arguments import ARGS
 
 
-
-
-
 def get_database_connection(gff_file):
     try:
         gffutils.FeatureDB(gff_file)
@@ -23,8 +20,6 @@ def build_database(gff_file):
     except:
         find_problem_line(gff_file)
     return feature_db
-
-
 
 
 

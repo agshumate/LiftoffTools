@@ -27,5 +27,3 @@ class SubprocessCaller():
             command_line_list.append(param)
             command_line_list.append(value)
         return command_line_list
-
-

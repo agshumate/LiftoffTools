@@ -4,7 +4,7 @@ import matplotlib as mpl
 import argparse
 from liftofftools.cli_arguments import ARGS
 from liftofftools import filepaths
-import sys
+import warnings
 
 
 COLOR_MAP = 'RdYlGn'
@@ -16,8 +16,6 @@ Y_LABEL = 'Target'
 LABEL_SIZE = 12
 GRID_WIDTH = 0.25
 GRID_COLOR = 'gray'
-
-
 
 
 def main():
@@ -38,13 +36,14 @@ def parse_input_file(input_file):
     return order_arr
 
 
-
 def plot_gene_order(order_arr):
     output_file = filepaths.build_filepath([ARGS.dir, filepaths.SYNTENY_OUTPUTS['plot']])
     if filepaths.make_file(output_file):
         x, y, c = get_scatter_points(order_arr)
         if len(x) == 0:
-            sys.exit("No " + " or ".join(ARGS.ft) + " features with matching IDs in reference and target to plot")
+            mismatch_ids_warning = "No features with matching IDs to plot"
+            warnings.warn(mismatch_ids_warning)
+            return
         plt.rcParams["figure.figsize"] = FIG_SIZE
         mpl.rcParams['figure.dpi'] = 300
         color_boundaries = get_color_spacing()
@@ -79,13 +78,10 @@ def get_scatter_points(order_arr):
     return x,y,c
 
 
-
 def get_color_spacing():
     boundaries = 1 - np.logspace(-2.5, 0, 10)
     boundaries.sort()
     return np.append(np.around(boundaries,3),1.001)
-
-
 
 
 def get_grid_and_ticks(order_arr, sort_by_idx, seq_idx):
@@ -109,7 +105,6 @@ def add_to_grid(grid_lines, total_count, tick_locs, tick_labels, chrom):
     if len(grid_lines) > 1:
         tick_locs.append(grid_lines[-1] - (grid_lines[-1] - grid_lines[-2]) / 2)
         tick_labels.append(chrom)
-
 
 
 if __name__ == '__main__':

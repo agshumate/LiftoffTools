@@ -19,7 +19,6 @@ class Cluster():
 
 
 
-
 def make_clusters_dict(tsv_file):
     all_clusters = {}
     if tsv_file is not None:
@@ -31,6 +30,7 @@ def make_clusters_dict(tsv_file):
                 else:
                     all_clusters[rep] = Cluster(rep, [member])
     return all_clusters
+
 
 def get_cluster_member_to_rep(cluster_dict):
     cluster_member_to_rep = {}
@@ -67,7 +67,6 @@ def get_seq_ids_of_cluster_mates(gene, cluster_members, ref_seqs, target_seqs):
 
 
 
-
 def write_cluster_output(cluster_group1, cluster_group2, output_file, is_coding):
     cluster_id = 0
     if is_coding:
@@ -82,10 +81,3 @@ def write_cluster_output(cluster_group1, cluster_group2, output_file, is_coding)
         size_cluster2 = len(cluster2.members)
         output_file.write("\t".join([cluster_label, str(size_cluster_1), str(cluster1), str(size_cluster2), str(cluster2)]) +
                 "\n")
-
-
-
-
-
-
-

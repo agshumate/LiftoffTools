@@ -3,14 +3,11 @@ import sys
 from collections import defaultdict
 from liftofftools.cli_arguments import ARGS
 
-
-
 class Annotation():
 
     def __init__(self, file_name):
         self.file_name = file_name
         self.__get_db_connnection()
-
 
 
     def __get_db_connnection(self):
@@ -49,8 +46,6 @@ class Annotation():
                     sys.exit("ERROR:Incorrect GFF/GTF syntax on line " + str(i + 1))
 
 
-
-
     def get_protein_coding_features(self, feature_types):
         protein_coding_genes = []
         for f_type in feature_types:
@@ -81,6 +76,7 @@ class Annotation():
                 novel_protein_coding.append(feature)
         return novel_protein_coding
 
+
     def get_novel_noncoding_features(self,ref_genes, feature_types):
         novel_noncoding = []
         all_noncoding = self.get_noncoding_features(feature_types)
@@ -90,13 +86,13 @@ class Annotation():
         return novel_noncoding
 
 
-
     def get_all_parent_feature_ids(self, feature_types):
         feature_ids = []
         for f_type in feature_types:
             feature_ids += [feature.id for feature in self.db_connection.features_of_type(
                 featuretype=f_type) if self.is_highest_parent(feature)]
         return feature_ids
+
 
     def make_parent_to_child_dict(self, protein_coding, gene):
         child_dict=defaultdict(list)
@@ -112,12 +108,12 @@ class Annotation():
             child_dict[gene] = [self.db_connection[gene]]
         return child_dict
 
+
     def get_features_of_type(self,feature_types):
         features_of_type = []
         for f_type in feature_types:
             features_of_type += list(self.db_connection.features_of_type(f_type))
         return features_of_type
-
 
 
     def get_feature_dict(self, feature_types):
@@ -135,11 +131,14 @@ class Annotation():
                 return "_".join(feature.id.split("_")[:-1])
         return feature.id
 
+
     def is_lowest_child(self, feature_name):
         return len(list(self.db_connection.children(feature_name))) == 0
 
+
     def is_highest_parent(self, feature_name):
         return len(list(self.db_connection.parents(feature_name))) == 0
+
 
     def get_paralog_name(self, feature_name):
         gene_attributes = self.db_connection[feature_name].attributes
@@ -148,6 +147,7 @@ class Annotation():
             return paralog_name
         return ""
 
+
     def get_num_levels(self, feature_name):
         level = 1
         new_children = list(self.db_connection.children(feature_name, level=level))
@@ -155,9 +155,6 @@ class Annotation():
             level += 1
             new_children = list(self.db_connection.children(feature_name, level=level))
         return level
-
-
-
 
 
 

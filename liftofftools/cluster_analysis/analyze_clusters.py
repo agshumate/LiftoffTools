@@ -6,7 +6,6 @@ from liftofftools.filepaths import MMSEQS_INTERMEDIATES as MI, CLSUTER_OUTPUTS, 
 import copy
 
 
-
 def main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db):
     if ARGS.force:
         remove_directory(ARGS.dir+ "/mmseqs_intermediates")
@@ -16,9 +15,6 @@ def main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_
     run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans)
     if ARGS.c is False:
         run_noncoding_workflow(ref_db, target_db, ref_trans, target_trans)
-
-
-
 
 
 def run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans):
@@ -33,8 +29,6 @@ def run_noncoding_workflow(ref_db, target_db,ref_trans, target_trans):
     unmapped_noncoding = analyze_noncoding(ref_trans, ref_db, target_db, target_trans)
     with open(build_filepath([ARGS.dir, CLSUTER_OUTPUTS['unmapped']]), 'a') as f:
         analyze_unmapped(unmapped_noncoding, ref_trans, target_trans, f)
-
-
 
 
 def analyze_proteins(ref_proteins, ref_db, target_db, target_proteins):
@@ -84,6 +78,7 @@ def add_to_paralog_cluster(target_gene, paralog, ref_member_to_cluster, final_ta
     paralog_cluster = final_target_clusters[cluster_rep]
     paralog_cluster.add_member(target_gene)
 
+
 def cluster_mates_in_ref_clusters(cluster, ref_member_to_cluster, target_gene,final_target_clusters):
     for mate in cluster.members:
         if mate in ref_member_to_cluster:
@@ -91,7 +86,6 @@ def cluster_mates_in_ref_clusters(cluster, ref_member_to_cluster, target_gene,fi
             final_target_clusters[cluster_rep].add_member(target_gene)
             return True
     return False
-
 
 
 def analyze_noncoding(ref_trans, ref_db, target_db, target_trans):
@@ -105,7 +99,6 @@ def analyze_noncoding(ref_trans, ref_db, target_db, target_trans):
         with open(final_cluster_output, 'a') as f:
                 return process_clusters(ref_clusters, target_clusters, target_db, f, False)
     return {}
-
 
 
 def build_clusters(sequence_dict, gene_list, ref_output):
@@ -133,6 +126,7 @@ def get_ref_prefix(sequence_dict):
     else:
         prefix = MI['ref_noncoding_prefix']
     return build_filepath([ARGS.dir, MI['dir'], prefix])
+
 
 def get_target_prefix(sequence_dict):
     if sequence_dict.is_protein:
@@ -174,6 +168,7 @@ def find_closest_paralog_name(seq_ids):
     if len(seq_ids) > 0:
         return max (seq_ids.items(), key=operator.itemgetter(1))[0]
     return "None"
+
 
 def find_paralog_seqid(paralog, seqids):
     if paralog != 'None':
