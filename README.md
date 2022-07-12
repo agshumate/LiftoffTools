@@ -114,10 +114,10 @@ This module compares the gene order in the reference annotation to the order in 
 
 ##### Output File 1
 The first output of the synteny module is a dot plot called gene_order_plot.pdf located in the output directory (liftofftools_output by default).
-In this file each gene is a point on a 2D plot where the x-coordinate is the ordinal position (e.g., 1st, 2nd, 3rd, etc.) in the reference genome and the y-coordinate is the ordinal position in the target genome. The color of the point corresponds to the sequence identity of the reference gene and the target gene where green indicates higher identity and red indicates lower identity. Note this color feature is only available for target annotations created by Liftoff which have the sequence identity information in the GTF/GFF3.
+In this file each gene is a point on a 2D plot where the x-coordinate is the ordinal position (e.g., 1st, 2nd, 3rd, etc.) in the reference genome and the y-coordinate is the ordinal position in the target genome. The color of the point corresponds to the sequence identity between reference gene and the target gene where green indicates higher identity and red indicates lower identity. Note this color feature is only available for target annotations created by Liftoff which have the sequence identity information in the GTF/GFF3.
 
 ##### Output File 2 
-The second output of the synteny module is a tab seperated file called 'gene_order' located in the output directory. If the -edit_distance option is used, the first line is the edit distance between the gene order in the reference and the gene order in the target which provides an estimate of how many genes in the target genome are in a different order compared to the the reference. This file has the following fields:
+The second output of the synteny module is a tab separated file called 'gene_order' located in the output directory. If the -edit_distance option is used, the first line is the edit distance between the gene order in the reference and the gene order in the target which provides an estimate of how many genes in the target genome are in a different order compared to the reference. This file has the following fields:
 
 
 
@@ -125,7 +125,7 @@ The second output of the synteny module is a tab seperated file called 'gene_ord
 |--:|:--------------------------------------------------------------------------------------------------------------------------------------------|
 |1  |Gene ID                                                                                                                                      |
 |2  |Reference ordinal position ('NA' if gene is not present in the reference)                                                                    |
-|3  |Target oridinal position ('NA' if gene is not present in the target)                                                                         |
+|3  |Target ordinal position ('NA' if gene is not present in the target)                                                                         |
 |4  |Reference chromosome ('NA' if gene is not present in the reference)                                                                          |
 |5  |Target chromosome ('NA' if gene is not present in the target)                                                                                |
 |6  |Sequence identity ('NA' if gene is not present in both reference and target or if sequence identity information is not present in annotation)|
@@ -144,7 +144,7 @@ This module clusters the genes into paralogous groups using [MMSeqs2](https://gi
 #### Clusters Output
 
 ##### Output File 1
-The first file output by the clusters module is a tab seperated file called 'clusters' in the output directory (liftofftools_output by default). This file has the following fields for each cluster:
+The first file output by the clusters module is a tab separated file called 'clusters' in the output directory (liftofftools_output by default). This file has the following fields for each cluster:
 
 |Col|Description                                                                               |
 |--:|:-----------------------------------------------------------------------------------------|
