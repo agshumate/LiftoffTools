@@ -71,7 +71,7 @@ The variants module can be run with the following command:
 liftofftools variants -r <reference.fa> -t <target.fa> -rg <reference.gff3> -tg <target.gff3>
 ```
 
-The variants module calculates the sequence identity of transcripts in the reference genome and the corresponding transcript in the target genome and for protein-coding genes, identifies variants and their effect on the gene. The effects we look for are defined below.
+The variants module calculates the sequence identity between transcripts in the reference genome and the corresponding transcript in the target genome and for protein-coding genes, identifies variants and their effect on the gene. The effects we look for are defined below.
 
 ```
 synonymous - A point mutation in the target transcript that does not change the amino acid sequence.
@@ -165,8 +165,8 @@ The second file output by the clusters module is a tab separated file called 'un
 |--:|:-----------------------------------------------------------|
 |1  |ID of gene that failed to map to the target genome          |                                                         
 |2  |ID of mapped paralog with the highest sequence identity     |
-|3  |DNA sequence identity of closest mapped paralog (0-1.0)     |
-|4  |Protein sequence identity of closest mapped paralog (0 -1.0)|
+|3  |DNA sequence identity between unmapped gene and closest mapped paralog (0-1.0)     |
+|4  |Protein sequence identity between unmapped gene and closest mapped paralog (0 -1.0)|
 
 
 
