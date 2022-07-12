@@ -1,6 +1,6 @@
 # LiftoffTools
 
-LiftoffTools is a toolkit to compare genes lifted between genome assemblies. Specifically it is designed to compare genes lifted over using [Liftoff](https://github.com/agshumate/Liftoff) although it is also compatible with other lift-over tools such as UCSC liftOver as long as the feature IDs are the same. LiftoffTools provides 3 different modules. The first identifies variants in protein-coding genes and their effects on the gene. The second compares the gene synteny, and the third clusters genes into groups of paralogs to evaluate gene copy number gain and loss. The input for all modules is the reference genome assembly (FASTA), target genome assembly (FASTA), reference annotation (GFF/GTF), and target annotation (GFF/GTF). ### Feature Types
+LiftoffTools is a toolkit to compare genes lifted between genome assemblies. Specifically it is designed to compare genes lifted over using [Liftoff](https://github.com/agshumate/Liftoff) although it is also compatible with other lift-over tools such as UCSC liftOver as long as the feature IDs are the same. LiftoffTools provides 3 different modules. The first identifies variants in protein-coding genes and their effects on the gene. The second compares the gene synteny, and the third clusters genes into groups of paralogs to evaluate gene copy number gain and loss. The input for all modules is the reference genome assembly (FASTA), target genome assembly (FASTA), reference annotation (GFF/GTF), and target annotation (GFF/GTF). 
 
 
 ## Installation
