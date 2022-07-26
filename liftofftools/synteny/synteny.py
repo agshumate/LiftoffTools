@@ -10,17 +10,24 @@ def analyze_synteny(ref_db, target_db,  ref_fa, target_fa):
     print('Analyzing synteny')
     output_file = filepaths.build_filepath([ARGS.dir, filepaths.SYNTENY_OUTPUTS['gene_order']])
     if filepaths.make_file(output_file):
-        less_contigs_fa, more_contigs_fa, less_contigs_db, more_contigs_db = find_most_contiguous_genome(ref_fa,
-                                                                                                      target_fa,
-                                                                                              ref_db, target_db)
-        default_chrom_order = order_chroms(less_contigs_fa)
-        default_gene_order = order_genes(default_chrom_order, less_contigs_db, more_contigs_db)
-        matched_chrom_order = match_chrom_order(default_gene_order, more_contigs_db)
-        matched_gene_order = order_genes(matched_chrom_order ,more_contigs_db, less_contigs_db)
-        ref_gene_order, target_gene_order= get_ref_and_target_gene_order(default_gene_order, matched_gene_order,
-                                                                         ref_fa==more_contigs_fa)
+        if ARGS.r_sort:
+            ref_chrom_order = parse_chrom_order_list(ARGS.r_sort, ref_fa)
+            target_chrom_order= parse_chrom_order_list(ARGS.t_sort, target_fa)
+            ref_gene_order = order_genes(ref_chrom_order, target_chrom_order, ref_db, target_db)
+            target_gene_order = order_genes(target_chrom_order, ref_chrom_order, target_db, ref_db)
+        else:
+            ref_gene_order, target_gene_order = infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db)
         output_rows = print_order_output(ref_gene_order, target_gene_order, ref_db,target_db, output_file)
         plot_gene_order.plot_gene_order(output_rows)
+
+
+def infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db):
+        less_contigs_fa, more_contigs_fa, less_contigs_db, more_contigs_db = find_most_contiguous_genome(ref_fa, target_fa, ref_db, target_db)
+        default_chrom_order = order_chroms(less_contigs_fa)
+        default_gene_order = order_genes(default_chrom_order, more_contigs_fa.keys(), less_contigs_db, more_contigs_db)
+        matched_chrom_order = match_chrom_order(default_gene_order, more_contigs_db)
+        matched_gene_order = order_genes(matched_chrom_order , less_contigs_fa.keys(), more_contigs_db, less_contigs_db)
+        return get_ref_and_target_gene_order(default_gene_order, matched_gene_order,ref_fa == more_contigs_fa)
 
 
 def find_most_contiguous_genome(ref_fa, target_fa, ref_db, target_db):
@@ -42,6 +49,18 @@ def order_chroms(fa):
     ordered_chroms = np.array(chroms)
     return get_chrom_order_dict(ordered_chroms)
 
+
+def parse_chrom_order_list(chrom_order_txt_file, fa):
+    chrom_order = []
+    with open(chrom_order_txt_file) as co:
+        for line in co:
+            chrom = line.strip()
+            if chrom not in fa:
+                chrom_not_found_str = chrom +" not in assembly. Skipping"
+                warnings.warn(chrom_not_found_str)
+            else:
+                chrom_order.append(line.strip())
+    return get_chrom_order_dict(np.array(chrom_order))
 
 def get_chrom_order_dict(ordered_chroms):
     chrom_order_dict = {}
@@ -76,12 +95,12 @@ def get_median_default_gene_order(chrom_to_ref_gene_order):
     return chrom_and_avg_gene_number
 
 
-def order_genes(chrom_order, gene_db1, gene_db2):
+def order_genes(chrom_order1, chrom_order2, gene_db1, gene_db2):
     gene_order_dict = {}
-    all_genes1 = gene_db1.get_features_of_type(ARGS.ft)
-    all_genes2 = [gene.id for gene in gene_db2.get_features_of_type(ARGS.ft)]
+    all_genes1 = [gene for gene in gene_db1.get_features_of_type(ARGS.ft) if gene.seqid in chrom_order1]
+    all_genes2 = [gene.id for gene in gene_db2.get_features_of_type(ARGS.ft) if gene.seqid in chrom_order2]
     filtered_genes = [gene for gene in all_genes1 if  gene.id in all_genes2]
-    filtered_genes.sort(key=lambda x: [chrom_order[x.seqid], x.start])
+    filtered_genes.sort(key=lambda x: [chrom_order1[x.seqid], x.start])
     for i in range(len(filtered_genes)):
         gene_order_dict[filtered_genes[i].id] =i
     return gene_order_dict
