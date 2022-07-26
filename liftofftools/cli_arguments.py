@@ -1,7 +1,6 @@
 import argparse
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Compare gene annotations across genome assemblies')
+def parse_args(parser):
     parser.add_argument('subcommand', choices=['clusters', 'variants', 'synteny', 'all'])
     parser.add_argument('-r', help='reference fasta', required=True)
     parser.add_argument('-t', help='target fasta', required=True)
@@ -25,9 +24,14 @@ def parse_args():
     synteny_group = parser.add_argument_group("synteny arguments")
     synteny_group.add_argument('-edit-distance', help="calculate edit distance between reference gene order and "
                                                       "target gene order", required=False, action='store_true')
+    synteny_group.add_argument('-r-sort', help="txt file with the order of the reference chromosomes to be plotted on the x-axis", required=False, default=None)
+    synteny_group.add_argument('-t-sort', help="txt file with the order of the target chromosomes to be plotted on the y-axis", required=False, default=None)                                    
     parser.add_argument('-V', '--version', help='show program version', action='version', version='v0.2.0   ')
     parser._positionals.title = 'Subcommands'
     return parser.parse_args()
 
 
-ARGS=parse_args()
+parser = argparse.ArgumentParser(description='Compare gene annotations across genome assemblies')
+ARGS=parse_args(parser)
+if bool(ARGS.r_sort) ^ bool(ARGS.t_sort):
+    parser.error('-r-sort and -t-sort must be given together')
