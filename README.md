@@ -53,6 +53,10 @@ clusters arguments:
 synteny arguments:
   -edit-distance        calculate edit distance between reference gene order
                         and target gene order
+   -r-sort R_SORT        txt file with the order of the reference chromosomes
+                        to be plotted on the x-axis
+  -t-sort T_SORT        txt file with the order of the target chromosomes to
+                        be plotted on the y-axis
 ```
 ### Output Directory
 By default, all output files will be written to a directory within the current working directory called liftofftools_output. This can be changed with the -dir parameter. By default LiftoffTools will not overwrite files in the output directory. To enable overwrite, use the -force option. 
@@ -120,6 +124,16 @@ In this file each gene is a point on a 2D plot where the x-coordinate is the ord
 
 ##### Output File 2 
 The second output of the synteny module is a tab separated file called 'gene_order' located in the output directory. If the -edit_distance option is used, the first line is the edit distance between the gene order in the reference and the gene order in the target which provides an estimate of how many genes in the target genome are in a different order compared to the reference. This file has the following fields:
+
+#### Chromosome Ordering
+the -r-sort and -t-sort options can be provided to establish the order in which the chromosomes are plotted for the reference genes and target genes respectively. These options must be provided together. The input format for these options is a simple .txt file with the order of the chromosomes like the example here. 
+'''
+chr1
+chr2
+chr3
+chr4
+''''
+If -r-sort and t-sort are provided, only genes on the chromosomes in the .txt files will be plotted. Thus, if you do not wish to plot genes on all contigs/chromosomes, simply omit them from the .txt files. If these options are not provided, liftofftools will try to infer the matching order of the reference chromosomes and the target chromosomes by looking at where the genes from each reference chromosome mapped. 
 
 
 
