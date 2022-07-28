@@ -1,6 +1,7 @@
 from liftofftools import alignment
 from liftofftools.filepaths import VARIANTS_OUTPUTS, build_filepath, make_file
 from liftofftools.cli_arguments import ARGS
+from liftofftools.sequences import get_padding_length
 import warnings
 
 def analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db):
@@ -9,7 +10,8 @@ def analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, tar
     if make_file(variant_effects):
         with open(variant_effects, 'w') as of_ve:
             for tran in target_trans:
-                if target_db.db_connection[tran].featuretype == "gene":
+                tran_feature = target_db.db_connection[tran]
+                if tran_feature.featuretype == "gene" and len(target_trans[tran]) == tran_feature.end-tran_feature.start +1 + get_padding_length(tran_feature.end - tran_feature.start +1):
                     no_transcripts_warning = "Warning: Gene " + tran + " has no transcripts.Skipping"
                     warnings.warn(no_transcripts_warning)
                 else:

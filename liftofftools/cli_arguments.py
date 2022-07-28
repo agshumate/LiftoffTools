@@ -26,7 +26,7 @@ def parse_args(parser):
                                                       "target gene order", required=False, action='store_true')
     synteny_group.add_argument('-r-sort', help="txt file with the order of the reference chromosomes to be plotted on the x-axis", required=False, default=None)
     synteny_group.add_argument('-t-sort', help="txt file with the order of the target chromosomes to be plotted on the y-axis", required=False, default=None)                                    
-    parser.add_argument('-V', '--version', help='show program version', action='version', version='v0.3.0   ')
+    parser.add_argument('-V', '--version', help='show program version', action='version', version='v0.4')
     parser._positionals.title = 'Subcommands'
     return parser.parse_args()
 
@@ -35,4 +35,3 @@ parser = argparse.ArgumentParser(description='Compare gene annotations across ge
 ARGS=parse_args(parser)
 if bool(ARGS.r_sort) ^ bool(ARGS.t_sort):
     parser.error('-r-sort and -t-sort must be given together')
-
