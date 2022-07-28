@@ -74,10 +74,11 @@ def get_dna_sequence(fasta, features):
         sequence += str(fasta[chrom][start -1: end])
     if strand == "-":
         sequence = str(Seq(sequence).reverse_complement())
-    padding_length = (3- len(sequence)%3)%3
-    sequence += 'N' * padding_length
+    sequence += 'N' * get_padding_length(len(sequence))
     return sequence
 
+def get_padding_length(sequence_length):
+    return (3-sequence_length%3)%3
 
 def get_protein_sequence(fasta, features):
     dna = get_dna_sequence(fasta, features)
