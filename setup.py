@@ -1,4 +1,4 @@
-iimport setuptools
+import setuptools
 
 
 setuptools.setup(
