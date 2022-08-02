@@ -1,13 +1,12 @@
 from liftofftools import alignment
 from liftofftools.filepaths import VARIANTS_OUTPUTS, build_filepath, make_file
-from liftofftools.cli_arguments import ARGS
 from liftofftools.sequences import get_padding_length
 import warnings
 
-def analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db):
+def analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db, args):
     print("Analyzing variants")
-    variant_effects = build_filepath([ARGS.dir, VARIANTS_OUTPUTS['variants']])
-    if make_file(variant_effects):
+    variant_effects = build_filepath([args.dir, VARIANTS_OUTPUTS['variants']])
+    if make_file(variant_effects, args.force):
         with open(variant_effects, 'w') as of_ve:
             for tran in target_trans:
                 tran_feature = target_db.db_connection[tran]

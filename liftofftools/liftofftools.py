@@ -2,37 +2,38 @@ from liftofftools import annotation
 from liftofftools.sequences import SequenceDict
 from liftofftools.cluster_analysis import analyze_clusters
 from pyfaidx import Fasta
-from liftofftools.cli_arguments import ARGS
 from liftofftools.synteny import synteny
+from liftofftools.cli_arguments import parse_args
 from liftofftools.filepaths import make_directory
 from liftofftools.variants import variants
 import sys
 import warnings
 
 
-def main():
-    make_directory(ARGS.dir)
-    feature_types = get_feature_types(ARGS.f)
-    ARGS.ft = feature_types
-    ref_db = annotation.Annotation(ARGS.rg)
-    target_db = annotation.Annotation(ARGS.tg)
-    ref_fa = Fasta(ARGS.r)
-    target_fa = Fasta(ARGS.t)
+def main(arglist=None):
+    args= parse_args(arglist)
+    make_directory(args.dir)
+    feature_types = get_feature_types(args.f)
+    args.ft = feature_types
+    ref_db = annotation.Annotation(args.rg, args.infer_genes)
+    target_db = annotation.Annotation(args.tg, args.infer_genes)
+    ref_fa = Fasta(args.r)
+    target_fa = Fasta(args.t)
     check_feature_types(target_db, feature_types)
     check_ids(ref_db.db_connection, target_db.db_connection, feature_types)
     child_types = get_child_types(feature_types, ref_db)
-    if ARGS.subcommand in ['all', 'synteny']:
-        synteny.analyze_synteny(ref_db, target_db,ref_fa, target_fa)
-    if ARGS.subcommand in ['all', 'clusters', 'variants']:
+    if args.subcommand in ['all', 'synteny']:
+        synteny.analyze_synteny(ref_db, target_db,ref_fa, target_fa, args)
+    if args.subcommand in ['all', 'clusters', 'variants']:
         print('Extracting transcript sequences')
         ref_proteins = SequenceDict(ref_db, ref_fa, ['CDS', 'start_codon', 'stop_codon'], True)
         target_proteins = SequenceDict(target_db, target_fa, ['CDS','start_codon', 'stop_codon'], True)
         ref_trans = SequenceDict(ref_db, ref_fa, child_types, False)
         target_trans = SequenceDict(target_db, target_fa, child_types, False)
-    if ARGS.subcommand in ['all', 'clusters']:
-        analyze_clusters.main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db)
-    if ARGS.subcommand in ['all', 'variants']:
-        variants.analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db)
+    if args.subcommand in ['all', 'clusters']:
+        analyze_clusters.main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db, args)
+    if args.subcommand in ['all', 'variants']:
+        variants.analyze_variants(ref_proteins, target_proteins, ref_trans, target_trans, target_db, ref_db, args)
 
 
 

@@ -1,52 +1,51 @@
 from liftofftools.cluster_analysis import clusters,mmseqs_workflow
 import operator
-from liftofftools.cli_arguments import ARGS
 from liftofftools.filepaths import MMSEQS_INTERMEDIATES as MI, CLSUTER_OUTPUTS, build_filepath, make_directory,\
     remove_directory, make_file, remove_file
 import copy
 
 
-def main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db):
-    if ARGS.force:
-        remove_directory(ARGS.dir+ "/mmseqs_intermediates")
-        remove_file(ARGS.dir + "/clusters")
-    mmseqs_dir = build_filepath([ARGS.dir, MI['dir']])
+def main(ref_proteins, target_proteins, ref_trans, target_trans, ref_db, target_db, args):
+    if args.force:
+        remove_directory(args.dir+ "/mmseqs_intermediates")
+        remove_file(args.dir + "/clusters")
+    mmseqs_dir = build_filepath([args.dir, MI['dir']])
     make_directory(mmseqs_dir)
-    run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans)
-    if ARGS.c is False:
-        run_noncoding_workflow(ref_db, target_db, ref_trans, target_trans)
+    run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans, args)
+    if args.c is False:
+        run_noncoding_workflow(ref_db, target_db, ref_trans, target_trans, args)
 
 
-def run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans):
+def run_coding_workflow(ref_proteins, ref_db, target_db, target_proteins,ref_trans, target_trans, args):
     print('Analyzing protein-coding clusters')
-    unmapped_coding = analyze_proteins(ref_proteins, ref_db, target_db, target_proteins)
-    with open(build_filepath([ARGS.dir, CLSUTER_OUTPUTS['unmapped']]), 'w') as f:
+    unmapped_coding = analyze_proteins(ref_proteins, ref_db, target_db, target_proteins, args)
+    with open(build_filepath([args.dir, CLSUTER_OUTPUTS['unmapped']]), 'w') as f:
         analyze_unmapped(unmapped_coding, ref_trans, target_trans, f, ref_proteins,target_proteins)
 
 
-def run_noncoding_workflow(ref_db, target_db,ref_trans, target_trans):
+def run_noncoding_workflow(ref_db, target_db,ref_trans, target_trans, args):
     print('Analyzing noncoding clusters')
-    unmapped_noncoding = analyze_noncoding(ref_trans, ref_db, target_db, target_trans)
-    with open(build_filepath([ARGS.dir, CLSUTER_OUTPUTS['unmapped']]), 'a') as f:
+    unmapped_noncoding = analyze_noncoding(ref_trans, ref_db, target_db, target_trans, args)
+    with open(build_filepath([args.dir, CLSUTER_OUTPUTS['unmapped']]), 'a') as f:
         analyze_unmapped(unmapped_noncoding, ref_trans, target_trans, f)
 
 
-def analyze_proteins(ref_proteins, ref_db, target_db, target_proteins):
-    ref_protein_coding_genes = ref_db.get_protein_coding_features(ARGS.ft)
-    target_protein_coding_genes = target_db.get_protein_coding_features(ARGS.ft)
+def analyze_proteins(ref_proteins, ref_db, target_db, target_proteins, args):
+    ref_protein_coding_genes = ref_db.get_protein_coding_features(args.ft)
+    target_protein_coding_genes = target_db.get_protein_coding_features(args.ft)
     if len(ref_protein_coding_genes) >0 or len(target_protein_coding_genes) >0:
         ref_clusters, target_clusters = cluster(ref_proteins, target_proteins, ref_protein_coding_genes,
-                                                      target_protein_coding_genes,target_db)
-        with open(build_filepath([ARGS.dir,CLSUTER_OUTPUTS['clusters']]), 'w') as f:
-            return process_clusters(ref_clusters, target_clusters, target_db, f, True)
+                                                      target_protein_coding_genes,target_db, args)
+        with open(build_filepath([args.dir,CLSUTER_OUTPUTS['clusters']]), 'w') as f:
+            return process_clusters(ref_clusters, target_clusters, target_db, f, True, args.ft)
     return {}
 
 
-def cluster(ref_seqs, target_seqs, ref_genes, target_genes, target_db):
-    ref_output = get_ref_prefix(ref_seqs)
-    target_output = get_target_prefix(ref_seqs)
-    ref_tsv = build_clusters(ref_seqs,  ref_genes, ref_output, )
-    target_tsv = build_clusters(target_seqs,  target_genes, target_output, )
+def cluster(ref_seqs, target_seqs, ref_genes, target_genes, target_db, args):
+    ref_output = get_ref_prefix(ref_seqs, args.dir)
+    target_output = get_target_prefix(ref_seqs, args.dir)
+    ref_tsv = build_clusters(ref_seqs,  ref_genes, ref_output,args)
+    target_tsv = build_clusters(target_seqs,  target_genes, target_output, args)
     ref_clusters = clusters.make_clusters_dict(ref_tsv)
     target_clusters = clusters.make_clusters_dict(target_tsv)
     ref_member_to_cluster = clusters.get_cluster_member_to_rep(ref_clusters)
@@ -88,26 +87,26 @@ def cluster_mates_in_ref_clusters(cluster, ref_member_to_cluster, target_gene,fi
     return False
 
 
-def analyze_noncoding(ref_trans, ref_db, target_db, target_trans):
-    ref_noncoding_genes = ref_db.get_noncoding_features(ARGS.ft)
-    target_noncoding_genes = target_db.get_noncoding_features(ARGS.ft)
-    noncoding_genes = ref_db.get_noncoding_features(ARGS.ft)
+def analyze_noncoding(ref_trans, ref_db, target_db, target_trans, args):
+    ref_noncoding_genes = ref_db.get_noncoding_features(args.ft)
+    target_noncoding_genes = target_db.get_noncoding_features(args.ft)
+    noncoding_genes = ref_db.get_noncoding_features(args.ft)
     if len(noncoding_genes) >0:
         ref_clusters , target_clusters = cluster(ref_trans, target_trans, ref_noncoding_genes,
-                                                       target_noncoding_genes, target_db)
-        final_cluster_output = build_filepath([ARGS.dir, CLSUTER_OUTPUTS['clusters']])
+                                                       target_noncoding_genes, target_db, args)
+        final_cluster_output = build_filepath([args.dir, CLSUTER_OUTPUTS['clusters']])
         with open(final_cluster_output, 'a') as f:
-                return process_clusters(ref_clusters, target_clusters, target_db, f, False)
+                return process_clusters(ref_clusters, target_clusters, target_db, f, False, args.ft)
     return {}
 
 
-def build_clusters(sequence_dict, gene_list, ref_output):
+def build_clusters(sequence_dict, gene_list, ref_output, args):
     fasta_name = ref_output + ".fa"
     if len(gene_list) >0:
-        if make_file(fasta_name):
+        if make_file(fasta_name, args.force):
             longest_seqs = sequence_dict.get_longest_isoform_dict(gene_list)
             write_fasta(longest_seqs, fasta_name)
-        tsv = mmseqs_workflow.new_cluster_workflow([fasta_name], ref_output)
+        tsv = mmseqs_workflow.new_cluster_workflow([fasta_name], ref_output,args)
         return tsv
     return None
 
@@ -120,31 +119,24 @@ def write_fasta(sequence_dict, out_file):
     f.close
 
 
-def get_ref_prefix(sequence_dict):
+def get_ref_prefix(sequence_dict, dir):
     if sequence_dict.is_protein:
          prefix = MI['ref_coding_prefix']
     else:
         prefix = MI['ref_noncoding_prefix']
-    return build_filepath([ARGS.dir, MI['dir'], prefix])
+    return build_filepath([dir, MI['dir'], prefix])
 
 
-def get_target_prefix(sequence_dict):
+def get_target_prefix(sequence_dict, dir):
     if sequence_dict.is_protein:
         prefix = MI['target_coding_prefix']
     else:
         prefix = MI['target_noncoding_prefix']
-    return build_filepath([ARGS.dir, MI['dir'], prefix])
+    return build_filepath([dir, MI['dir'], prefix])
 
 
-def find_novel_genes(ref_db, target_db, protein_coding):
-    if protein_coding:
-        return target_db.get_novel_protein_coding_features(ref_db.get_all_parent_feature_ids(ARGS.ft), ARGS.ft)
-    else:
-        return target_db.get_novel_noncoding_features(ref_db.get_all_parent_feature_ids(ARGS.ft),ARGS.ft)
-
-
-def process_clusters(ref_clusters, target_clusters, target_db, output, is_coding):
-    unmapped_gene_to_cluster = clusters.process_unmapped_genes(target_clusters, target_db)
+def process_clusters(ref_clusters, target_clusters, target_db, output, is_coding, feature_types):
+    unmapped_gene_to_cluster = clusters.process_unmapped_genes(target_clusters, target_db, feature_types)
     clusters.write_cluster_output(ref_clusters, target_clusters, output, is_coding)
     return unmapped_gene_to_cluster
 

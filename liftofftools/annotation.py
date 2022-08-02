@@ -1,40 +1,49 @@
 import gffutils
 import sys
 from collections import defaultdict
-from liftofftools.cli_arguments import ARGS
+
 
 class Annotation():
 
-    def __init__(self, file_name):
+
+    def __init__(self, file_name, infer_genes):
         self.file_name = file_name
-        self.__get_db_connnection()
+        self.infer_genes = infer_genes
+        self.get_db_connnection()
 
 
-    def __get_db_connnection(self):
+    def get_db_connnection(self):
         try:
             feature_db = gffutils.FeatureDB(self.file_name)
         except:
-            feature_db = self.__build_database()
+            feature_db = self.build_database()
         feature_db.execute('ANALYZE features')
         self.db_connection = feature_db
 
 
-    def __build_database(self):
-        if ARGS.infer_genes:
+    def build_database(self):
+        if self.infer_genes:
             disable_genes = False
         else:
             disable_genes = True
         try:
+            transform_func = self.get_transform_func()
             feature_db = gffutils.create_db(self.file_name, self.file_name + "_db", merge_strategy="create_unique",
                                         force=True,
                                         verbose=True, disable_infer_transcripts=True,
                                             disable_infer_genes=disable_genes, transform=transform_func)
         except:
-            self.__find_problem_line()
+            self.find_problem_line()
         return feature_db
 
+    def get_transform_func(self):
+        if self.infer_genes is False:
+            return None
+        else:
+            return transform_func
 
-    def __find_problem_line(self):
+
+    def find_problem_line(self):
         f = open(self.file_name, 'r')
         lines = f.readlines()
         for i in range(len(lines)):
@@ -159,11 +168,8 @@ class Annotation():
 
 
 def transform_func(x):
-    if ARGS.infer_genes is False:
-        return x
-    else:
-        if 'transcript_id' in x.attributes:
-            x.attributes['transcript_id'][0] += '_transcript'
+    if 'transcript_id' in x.attributes:
+        x.attributes['transcript_id'][0] += '_transcript'
     return x
 
 

@@ -2,7 +2,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 import matplotlib as mpl
 import argparse
-from liftofftools.cli_arguments import ARGS
 from liftofftools import filepaths
 import warnings
 
@@ -18,13 +17,13 @@ GRID_WIDTH = 0.25
 GRID_COLOR = 'gray'
 
 
-def main():
+def main(args):
     parser = argparse.ArgumentParser(description='plot gene synteny')
     parser.add_argument('input_file', help='tab seperated file with gene order output from synteny subcommand')
     args = parser.parse_args()
     order_arr = parse_input_file(args.input_file)
     print('Plotting gene order')
-    plot_gene_order(order_arr)
+    plot_gene_order(order_arr, args)
 
 
 def parse_input_file(input_file):
@@ -36,9 +35,9 @@ def parse_input_file(input_file):
     return order_arr
 
 
-def plot_gene_order(order_arr):
-    output_file = filepaths.build_filepath([ARGS.dir, filepaths.SYNTENY_OUTPUTS['plot']])
-    if filepaths.make_file(output_file):
+def plot_gene_order(order_arr, args):
+    output_file = filepaths.build_filepath([args.dir, filepaths.SYNTENY_OUTPUTS['plot']])
+    if filepaths.make_file(output_file, args.force):
         x, y, c = get_scatter_points(order_arr)
         if len(x) == 0:
             mismatch_ids_warning = "No features with matching IDs to plot"

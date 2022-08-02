@@ -1,32 +1,31 @@
 import numpy as np
-from liftofftools.cli_arguments import ARGS
 from liftofftools.synteny import plot_gene_order
 from liftofftools import filepaths, annotation
 import nltk
 import warnings
 
 
-def analyze_synteny(ref_db, target_db,  ref_fa, target_fa):
+def analyze_synteny(ref_db, target_db,  ref_fa, target_fa, args):
     print('Analyzing synteny')
-    output_file = filepaths.build_filepath([ARGS.dir, filepaths.SYNTENY_OUTPUTS['gene_order']])
-    if filepaths.make_file(output_file):
-        if ARGS.r_sort:
-            ref_chrom_order = parse_chrom_order_list(ARGS.r_sort, ref_fa)
-            target_chrom_order= parse_chrom_order_list(ARGS.t_sort, target_fa)
-            ref_gene_order = order_genes(ref_chrom_order, target_chrom_order, ref_db, target_db)
-            target_gene_order = order_genes(target_chrom_order, ref_chrom_order, target_db, ref_db)
+    output_file = filepaths.build_filepath([args.dir, filepaths.SYNTENY_OUTPUTS['gene_order']])
+    if filepaths.make_file(output_file, args.force):
+        if args.r_sort:
+            ref_chrom_order = parse_chrom_order_list(args.r_sort, ref_fa)
+            target_chrom_order= parse_chrom_order_list(args.t_sort, target_fa)
+            ref_gene_order = order_genes(ref_chrom_order, target_chrom_order, ref_db, target_db, args.ft)
+            target_gene_order = order_genes(target_chrom_order, ref_chrom_order, target_db, ref_db, args.ft)
         else:
-            ref_gene_order, target_gene_order = infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db)
-        output_rows = print_order_output(ref_gene_order, target_gene_order, ref_db,target_db, output_file)
-        plot_gene_order.plot_gene_order(output_rows)
+            ref_gene_order, target_gene_order = infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db, args.ft)
+        output_rows = print_order_output(ref_gene_order, target_gene_order, ref_db,target_db, output_file, args)
+        plot_gene_order.plot_gene_order(output_rows, args)
 
 
-def infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db):
+def infer_chrom_and_gene_order(ref_fa, target_fa, ref_db, target_db, feature_types):
         less_contigs_fa, more_contigs_fa, less_contigs_db, more_contigs_db = find_most_contiguous_genome(ref_fa, target_fa, ref_db, target_db)
         default_chrom_order = order_chroms(less_contigs_fa)
-        default_gene_order = order_genes(default_chrom_order, more_contigs_fa.keys(), less_contigs_db, more_contigs_db)
-        matched_chrom_order = match_chrom_order(default_gene_order, more_contigs_db)
-        matched_gene_order = order_genes(matched_chrom_order , less_contigs_fa.keys(), more_contigs_db, less_contigs_db)
+        default_gene_order = order_genes(default_chrom_order, more_contigs_fa.keys(), less_contigs_db, more_contigs_db, feature_types)
+        matched_chrom_order = match_chrom_order(default_gene_order, more_contigs_db, feature_types)
+        matched_gene_order = order_genes(matched_chrom_order , less_contigs_fa.keys(), more_contigs_db, less_contigs_db, feature_types)
         return get_ref_and_target_gene_order(default_gene_order, matched_gene_order,ref_fa == more_contigs_fa)
 
 
@@ -69,17 +68,17 @@ def get_chrom_order_dict(ordered_chroms):
     return chrom_order_dict
 
 
-def match_chrom_order(ref_gene_order, target_db):
-    chrom_to_ref_gene_order = get_default_order_of_target_genes(target_db, ref_gene_order)
+def match_chrom_order(ref_gene_order, target_db, feature_types):
+    chrom_to_ref_gene_order = get_default_order_of_target_genes(target_db, ref_gene_order, feature_types)
     target_positions = get_median_default_gene_order(chrom_to_ref_gene_order)
     target_positions.sort(key = lambda x: x[1])
     ordered_chroms = np.array(target_positions)[:,0]
     return get_chrom_order_dict(ordered_chroms)
 
 
-def get_default_order_of_target_genes(target_db, ref_gene_order):
+def get_default_order_of_target_genes(target_db, ref_gene_order, feature_types):
     chrom_to_ref_gene_order = {}
-    all_genes = target_db.get_features_of_type(ARGS.ft)
+    all_genes = target_db.get_features_of_type(feature_types)
     for gene in all_genes:
         if gene.seqid not in chrom_to_ref_gene_order:
             chrom_to_ref_gene_order[gene.seqid] = [0]
@@ -95,10 +94,10 @@ def get_median_default_gene_order(chrom_to_ref_gene_order):
     return chrom_and_avg_gene_number
 
 
-def order_genes(chrom_order1, chrom_order2, gene_db1, gene_db2):
+def order_genes(chrom_order1, chrom_order2, gene_db1, gene_db2, feature_types):
     gene_order_dict = {}
-    all_genes1 = [gene for gene in gene_db1.get_features_of_type(ARGS.ft) if gene.seqid in chrom_order1]
-    all_genes2 = [gene.id for gene in gene_db2.get_features_of_type(ARGS.ft) if gene.seqid in chrom_order2]
+    all_genes1 = [gene for gene in gene_db1.get_features_of_type(feature_types) if gene.seqid in chrom_order1]
+    all_genes2 = [gene.id for gene in gene_db2.get_features_of_type(feature_types) if gene.seqid in chrom_order2]
     filtered_genes = [gene for gene in all_genes1 if  gene.id in all_genes2]
     filtered_genes.sort(key=lambda x: [chrom_order1[x.seqid], x.start])
     for i in range(len(filtered_genes)):
@@ -106,15 +105,15 @@ def order_genes(chrom_order1, chrom_order2, gene_db1, gene_db2):
     return gene_order_dict
 
 
-def print_order_output(ref_gene_order, target_gene_order, ref_db, target_db, output_file):
-    if ARGS.edit_distance:
+def print_order_output(ref_gene_order, target_gene_order, ref_db, target_db, output_file, args):
+    if args.edit_distance:
         edit_distance = nltk.edit_distance(list(ref_gene_order.values()), [target_gene_order[gene] for gene in
                                                                            ref_gene_order],transpositions=True)
     else:
         edit_distance = 'not calculated'
     output_rows = []
-    target_gene_dict = target_db.get_feature_dict(ARGS.ft)
-    add_ref_genes_to_print(output_rows, ref_gene_order, target_gene_order, ref_db, target_gene_dict)
+    target_gene_dict = target_db.get_feature_dict(args.ft)
+    add_ref_genes_to_print(output_rows, ref_gene_order, target_gene_order, ref_db, target_gene_dict, args.ft)
     with open(output_file, 'w') as f:
         f.write("Edit distance=" + str(edit_distance) + "\n" + "\n")
         for row in output_rows:
@@ -125,8 +124,8 @@ def print_order_output(ref_gene_order, target_gene_order, ref_db, target_db, out
     return output_rows
 
 
-def add_ref_genes_to_print(output_rows, ref_gene_order, target_gene_order, ref_db, target_gene_dict):
-    ref_gene_dict = ref_db.get_feature_dict(ARGS.ft)
+def add_ref_genes_to_print(output_rows, ref_gene_order, target_gene_order, ref_db, target_gene_dict, feature_types):
+    ref_gene_dict = ref_db.get_feature_dict(feature_types)
     for gene in ref_gene_order:
         ref_seq_name = ref_gene_dict[gene].seqid
         target_order = target_gene_order[gene]
