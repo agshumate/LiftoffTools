@@ -1,5 +1,5 @@
 from liftofftools import alignment
-from liftofftools.cli_arguments import ARGS
+
 
 
 class Cluster():
@@ -40,9 +40,9 @@ def get_cluster_member_to_rep(cluster_dict):
     return cluster_member_to_rep
 
 
-def process_unmapped_genes(clusters, gene_db):
+def process_unmapped_genes(clusters, gene_db, feature_types):
     unmapped_gene_to_cluster = {}
-    gene_ids = gene_db.get_all_parent_feature_ids(ARGS.ft)
+    gene_ids = gene_db.get_all_parent_feature_ids(feature_types)
     for cluster_rep, cluster in clusters.items():
         members_to_remove = []
         for member in cluster.members:

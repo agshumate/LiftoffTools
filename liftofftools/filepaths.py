@@ -1,6 +1,5 @@
 import os
 import shutil
-from liftofftools.cli_arguments import ARGS
 
 CLSUTER_OUTPUTS = { 'clusters': 'clusters', 'unmapped': 'unmapped_closest_paralogs'}
 
@@ -31,8 +30,8 @@ def remove_directory(path):
         shutil.rmtree(path)
 
 
-def make_file(file_name):
-    return os.path.exists(file_name) is False or ARGS.force
+def make_file(file_name, force):
+    return os.path.exists(file_name) is False or force
 
 
 def remove_file(file_name):
