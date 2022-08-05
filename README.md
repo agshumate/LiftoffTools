@@ -4,14 +4,19 @@ LiftoffTools is a toolkit to compare genes lifted between genome assemblies. Spe
 
 
 ## Installation
-
+The easiest way to install LiftoffTools is with conda
+```
+conda install -c bioconda liftofftools
+```
+If you don't have conda installed, you need to have [MMSeqs2](https://github.com/soedinglab/MMseqs2) installed and in your path and install LiftoffTools from source or using pip
 ```
 git clone https://github.com/agshumate/LiftoffTools liftofftools 
 cd liftofftools
 python setup.py install
 ```
-For the synteny module, you must also have [MMSeqs2](https://github.com/soedinglab/MMseqs2) installed and in your path 
-
+```
+pip install liftofftools
+```
 ## Usage
 
 ```
