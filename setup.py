@@ -5,7 +5,7 @@ setuptools.setup(
     name="LiftoffTools",
     version="0.4.3",
     author="Alaina Shumate",
-    author_email="ashumat2@jhmi.edu",
+    author_email="alainashumate@gmail.com",
     description="A tool for comparing annotations across genome assemblies",
     url="https://github.com/ashumate/LiftoffTools",
     install_requires=['matplotlib>=3.5.2' ,'nltk>=3.6.7','numpy>=1.21.1', 'parasail>=1.2.4', 'gffutils>=0.10.1',
