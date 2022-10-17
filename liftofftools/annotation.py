@@ -32,8 +32,9 @@ class Annotation():
                                         force=True,
                                         verbose=True, disable_infer_transcripts=True,
                                             disable_infer_genes=disable_genes, transform=transform_func)
-        except:
-            self.find_problem_line()
+        except Exception as e:
+            print("gffutils database build failed with", e)
+            sys.exit()
         return feature_db
 
     def get_transform_func(self):
@@ -42,17 +43,6 @@ class Annotation():
         else:
             return transform_func
 
-
-    def find_problem_line(self):
-        f = open(self.file_name, 'r')
-        lines = f.readlines()
-        for i in range(len(lines)):
-            line = lines[i]
-            if line[0] != "#":
-                try:
-                    gffutils.create_db(line, ":memory", from_string=True, force=True)
-                except:
-                    sys.exit("ERROR:Incorrect GFF/GTF syntax on line " + str(i + 1))
 
 
     def get_protein_coding_features(self, feature_types):
