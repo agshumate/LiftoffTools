@@ -30,10 +30,25 @@ def align_and_evaluate_seqs(ref_name, target_name, ref_db, target_db):
     ref_seq, target_seq = ref_db[ref_name].upper(), target_db[target_name].upper()
     if ref_seq != target_seq:
         if ref_db.is_protein:
-            align = alignment.ProteinAlignment(ref_seq, target_seq)
+            try:
+                align = alignment.ProteinAlignment(ref_seq, target_seq)
+            except AttributeError as error:
+                print("This sequence encountered a failure with parasail and will be skipped: ")
+                print(ref_name, target_name)
+                return None, 1.0
         else:
-            align = alignment.DNAAlignment(ref_seq, target_seq)
-        seq_id = align.calculate_seq_id()
+            try:
+                align = alignment.DNAAlignment(ref_seq, target_seq)
+            except AttributeError as error:
+                print("This sequence encountered a failure with parasail and will be skipped: ")
+                print(ref_name, target_name)
+                return None, 1.0
+        try:
+            seq_id = align.calculate_seq_id()
+        except AttributeError as error:
+            print("This sequence encountered a failure with parasail and will be skipped: ")
+            print(ref_name, target_name)
+            return None, 1.0
     else:
         return None, 1.0
     return align.alignment, seq_id
